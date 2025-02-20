@@ -1,0 +1,31 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+# Carregar dados
+def carregar_dados():
+    file_path = "Pasta2.xlsx"  # Substituir pelo caminho correto
+    df = pd.read_excel(file_path, sheet_name="Banco de Dados")
+    return df
+
+df = carregar_dados()
+
+# Layout do Streamlit
+st.title("📊 Dashboard Financeiro - XPTO")
+
+# Filtros
+definicao_tipo = st.selectbox("Selecione o tipo de lançamento", ["REALIZADO", "ORÇADO"], index=0)
+mes_selecionado = st.selectbox("Selecione o mês", sorted(df["MÊS"].unique()))
+
+df_filtrado = df[(df["TIPO DE LANÇAMENTO"] == definicao_tipo) & (df["MÊS"] == mes_selecionado)]
+
+# KPI
+valor_total = df_filtrado["Valor"].sum()
+st.metric(label="Total de Despesas", value=f"R$ {valor_total:,.2f}")
+
+# Gráficos
+fig = px.bar(df_filtrado, x="CONTA CONTÁBIL", y="Valor", color="DEPARTAMENTO", title="Despesas por Conta Contábil")
+st.plotly_chart(fig)
+
+# Tabela detalhada
+st.dataframe(df_filtrado)
